@@ -1,0 +1,36 @@
+political-website-backend/
+├── package.json ✓             (已完成)
+├── .env ✓                     (已完成)
+├── .gitignore ✓              (已完成)
+├── src/
+│   ├── app.js ✓              (已完成)
+│   ├── config/               
+│   │   ├── database.js ✓     (已完成)
+│   │   └── config.js ✓       (已完成)
+│   ├── controllers/ ✓        (已完成)
+│   │   ├── policyController.js
+│   │   ├── activityController.js
+│   │   └── contactController.js
+│   ├── models/ ✓             (已完成)
+│   │   ├── Policy.js
+│   │   ├── Activity.js
+│   │   └── Contact.js
+│   ├── routes/ ✓             (已完成)
+│   │   ├── policyRoutes.js
+│   │   ├── activityRoutes.js
+│   │   └── contactRoutes.js
+│   ├── middleware/ ✓         (已完成部分)
+│   │   ├── auth.js
+│   │   ├── errorHandler.js
+│   │   └── upload.js
+│   ├── utils/ ✓              (已完成)
+│   │   ├── asyncHandler.js
+│   │   └── response.js
+│   └── validations/ ✓        (已完成)
+│       ├── policyValidation.js
+│       ├── activityValidation.js
+│       └── contactValidation.js
+└── tests/                    (尚未完成)
+    ├── policy.test.js
+    ├── activity.test.js
+    └── contact.test.js

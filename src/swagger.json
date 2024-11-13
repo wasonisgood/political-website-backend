@@ -1,0 +1,615 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Political Website API",
+      "description": "政治網站後端 API 文檔",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/api",
+        "description": "開發環境"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "schemas": {
+        "Policy": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "政策ID"
+            },
+            "title": {
+              "type": "string",
+              "description": "政策標題"
+            },
+            "description": {
+              "type": "string",
+              "description": "簡短描述"
+            },
+            "content": {
+              "type": "string",
+              "description": "詳細內容"
+            },
+            "image_url": {
+              "type": "string",
+              "description": "圖片URL"
+            },
+            "category_id": {
+              "type": "integer",
+              "description": "類別ID"
+            },
+            "objectives": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "objective": {
+                    "type": "string",
+                    "description": "政策目標"
+                  }
+                }
+              }
+            },
+            "implementations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "step": {
+                    "type": "string",
+                    "description": "實施步驟"
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "description": "進度百分比"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Activity": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "活動ID"
+            },
+            "title": {
+              "type": "string",
+              "description": "活動標題"
+            },
+            "description": {
+              "type": "string",
+              "description": "活動描述"
+            },
+            "date": {
+              "type": "string",
+              "format": "date",
+              "description": "活動日期"
+            },
+            "time_start": {
+              "type": "string",
+              "format": "time",
+              "description": "開始時間"
+            },
+            "time_end": {
+              "type": "string",
+              "format": "time",
+              "description": "結束時間"
+            },
+            "location": {
+              "type": "string",
+              "description": "活動地點"
+            },
+            "category_id": {
+              "type": "integer",
+              "description": "類別ID"
+            },
+            "image_url": {
+              "type": "string",
+              "description": "圖片URL"
+            },
+            "external_link": {
+              "type": "string",
+              "description": "外部鏈接"
+            },
+            "agenda": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "time_slot": {
+                    "type": "string",
+                    "description": "時間段"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "議程描述"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ContactMessage": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "訊息ID"
+            },
+            "name": {
+              "type": "string",
+              "description": "寄件人姓名"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "寄件人信箱"
+            },
+            "message": {
+              "type": "string",
+              "description": "訊息內容"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["pending", "processed"],
+              "description": "處理狀態"
+            }
+          }
+        }
+      }
+    },
+    "paths": {
+      "/auth/login": {
+        "post": {
+          "tags": ["Auth"],
+          "summary": "登入取得 JWT Token",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "example": "admin"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "admin123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "登入成功",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "登入成功"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "token": {
+                            "type": "string",
+                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "帳號或密碼錯誤"
+            }
+          }
+        }
+      },
+      "/policies": {
+        "get": {
+          "summary": "獲取所有政策",
+          "tags": ["Policies"],
+          "responses": {
+            "200": {
+              "description": "成功獲取政策列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Policy"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "創建新政策",
+          "tags": ["Policies"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "category_id": {
+                      "type": "integer"
+                    },
+                    "image": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "objectives": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "objective": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "政策創建成功"
+            },
+            "400": {
+              "description": "請求數據驗證失敗"
+            },
+            "401": {
+              "description": "未授權"
+            }
+          }
+        }
+      },
+      "/policies/{id}": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "政策ID"
+          }
+        ],
+        "get": {
+          "summary": "獲取單個政策",
+          "tags": ["Policies"],
+          "responses": {
+            "200": {
+              "description": "成功獲取政策詳情",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Policy"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "政策不存在"
+            }
+          }
+        },
+        "put": {
+          "summary": "更新政策",
+          "tags": ["Policies"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "政策更新成功"
+            },
+            "404": {
+              "description": "政策不存在"
+            }
+          }
+        },
+        "delete": {
+          "summary": "刪除政策",
+          "tags": ["Policies"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "政策刪除成功"
+            },
+            "404": {
+              "description": "政策不存在"
+            }
+          }
+        }
+      },
+      "/activities": {
+        "get": {
+          "summary": "獲取所有活動",
+          "tags": ["Activities"],
+          "responses": {
+            "200": {
+              "description": "成功獲取活動列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Activity"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "創建新活動",
+          "tags": ["Activities"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "活動創建成功"
+            }
+          }
+        }
+      },
+      "/activities/{id}": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "活動ID"
+          }
+        ],
+        "get": {
+          "summary": "獲取單個活動",
+          "tags": ["Activities"],
+          "responses": {
+            "200": {
+              "description": "成功獲取活動詳情",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Activity"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "更新活動",
+          "tags": ["Activities"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "活動更新成功"
+            }
+          }
+        },
+        "delete": {
+          "summary": "刪除活動",
+          "tags": ["Activities"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "活動刪除成功"
+            }
+          }
+        }
+      },
+      "/contact/messages": {
+        "post": {
+          "summary": "發送聯絡訊息",
+          "tags": ["Contact"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactMessage"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "訊息發送成功"
+            }
+          }
+        },
+        "get": {
+          "summary": "獲取所有訊息",
+          "tags": ["Contact"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "成功獲取訊息列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/ContactMessage"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/contact/messages/{id}/status": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "訊息ID"
+          }
+        ],
+        "put": {
+          "summary": "更新訊息狀態",
+          "tags": ["Contact"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["pending", "processed"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "狀態更新成功"
+            }
+          }
+        }
+      }
+    }
+  }
